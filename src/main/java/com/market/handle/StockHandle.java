@@ -2,6 +2,7 @@ package com.market.handle;
 
 import com.market.request.IndexStocksRequest;
 import com.market.request.StockInfoRequest;
+import com.market.request.StockPriceRequest;
 import com.market.utils.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,11 @@ public class StockHandle {
         StockInfoRequest request = new StockInfoRequest(HandleConstants.GET_INDUSTRY_STOCKS, token, code);
         String industriesStr = (String) clientUtil.post(HandleConstants.JQ_URL, request, String.class);
         return industriesStr;
+    }
+
+    public String getStockPrice(StockPriceRequest request) {
+        String priceStr = (String) clientUtil.post(HandleConstants.JQ_URL, request, String.class);
+        return priceStr;
     }
 
 }

@@ -30,8 +30,18 @@ public class MongoDao {
         return mongoTemplate.insertAll(objects);
     }
 
+    public Object findOne(Query query, Class<?> object) {
+        Object result = mongoTemplate.findOne(query, object);
+        return result;
+    }
+
     public List<?> findMany(Query query, Class<?> object) {
         List<?> resultList = mongoTemplate.find(query, object);
+        return resultList;
+    }
+
+    public List<?> findAll(Class<?> object) {
+        List<?> resultList = mongoTemplate.findAll(object);
         return resultList;
     }
 

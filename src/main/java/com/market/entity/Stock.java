@@ -2,6 +2,7 @@ package com.market.entity;
 
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
@@ -9,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document("stock")
 public class Stock {
 
+    @Indexed
     private String code;
 
     private String shortName;
@@ -17,8 +19,8 @@ public class Stock {
 
     private String jqIndustryCode;
 
-    private String highest;
+    private double highest;
 
-    private String lowest;
+    private double lowest;
 
 }

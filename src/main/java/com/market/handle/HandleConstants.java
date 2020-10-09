@@ -2,6 +2,14 @@ package com.market.handle;
 
 public interface HandleConstants {
 
+    String JQ_L1 = "jq_l1";
+
+    String INIT_PRICE_UNIT = "1d";
+
+    String INIT_PRICE_START_TIME = "2020-09-30";
+
+    String INIT_PRICE_END_TIME = "2020-10-09";
+
     String JQ_URL = "https://dataapi.joinquant.com/apis";
 
     String GET_TOKEN = "get_token";
@@ -16,5 +24,7 @@ public interface HandleConstants {
 
     String GET_INDUSTRY_STOCKS = "get_industry_stocks";
 
-    String JQ_L1 = "jq_l1";
+    String GET_PRICE_PERIOD = "get_price_period";
+
+
 }
