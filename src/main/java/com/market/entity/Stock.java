@@ -23,4 +23,14 @@ public class Stock {
 
     private double lowest;
 
+    /**
+     * 是否可以融劵
+     */
+    private int marginsec;
+
+    /**
+     * 是否可以融资
+     */
+    private int margincash;
+
 }

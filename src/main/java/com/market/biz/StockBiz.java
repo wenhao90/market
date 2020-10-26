@@ -7,6 +7,7 @@ import com.market.handle.JQHandle;
 import com.market.handle.StockHandle;
 import com.market.mongo.MongoDao;
 import com.market.request.StockPriceRequest;
+import com.market.request.StockoMarginsecRequest;
 import com.market.utils.DateUtil;
 import com.market.utils.MathUtil;
 import org.slf4j.Logger;
@@ -26,6 +27,9 @@ import java.util.stream.Collectors;
 @Component
 public class StockBiz {
 
+    public static final String REGEX_LINE_BREAK = "\n";
+    public static final String REGEX_COMMA = ",";
+
     private static final Logger logger = LoggerFactory.getLogger(StockBiz.class);
 
     @Autowired
@@ -38,9 +42,9 @@ public class StockBiz {
     private JQHandle jqHandle;
 
     public void init() {
-//                String token = jqHandle.auth();
-//                logger.info("token:{}", token);
-        String token = "5b6a9ba1b0f77fba22667f2f07cf0bba3cebfe4e";
+//        String token = jqHandle.auth();
+//        logger.info("token:{}", token);
+        String token = "5b6a9ba1b0f77fba22667f2f07ce0fb3727a7553";
 
 
 //        if (shouldInit()) {
@@ -53,6 +57,40 @@ public class StockBiz {
 
 //        initMA(2);
 //        initPeatPrice();
+//        initMarginsec(token);
+        initMargincash(token);
+
+    }
+
+    private void initMargincash(String token) {
+        StockoMarginsecRequest request = new StockoMarginsecRequest(HandleConstants.GET_MARGINCASH_STOCKS, token);
+        String margincashString = stockHandle.getStockMarginsec(request);
+
+        String[] margincashArray = margincashString.split(REGEX_LINE_BREAK);
+
+        Update update = new Update();
+        update.set("margincash", 1);
+
+        for (int i = 0; i < margincashArray.length; i++) {
+            Query query = new Query(Criteria.where("code").is(margincashArray[i]));
+            mongoDao.update(query, update, Stock.class);
+        }
+
+    }
+
+    private void initMarginsec(String token) {
+        StockoMarginsecRequest request = new StockoMarginsecRequest(HandleConstants.GET_MARGINSEC_STOCKS, token);
+        String margisecString = stockHandle.getStockMarginsec(request);
+
+        String[] margisecArray = margisecString.split(REGEX_LINE_BREAK);
+
+        Update update = new Update();
+        update.set("marginsec", 1);
+
+        for (int i = 0; i < margisecArray.length; i++) {
+            Query query = new Query(Criteria.where("code").is(margisecArray[i]));
+            mongoDao.update(query, update, Stock.class);
+        }
 
     }
 
@@ -119,9 +157,9 @@ public class StockBiz {
 
             List<StockPrice> priceList = new ArrayList<>();
 
-            String[] priceArray = priceStr.split("\n");
+            String[] priceArray = priceStr.split(REGEX_LINE_BREAK);
             for (int i = 1; i < priceArray.length; i++) {
-                String[] priceInfoArray = priceArray[i].split(",");
+                String[] priceInfoArray = priceArray[i].split(REGEX_COMMA);
                 StockPrice price = StockPrice.builder()
                         .code(code)
                         .date(priceInfoArray[0])
@@ -151,7 +189,7 @@ public class StockBiz {
 
             Query query = new Query(Criteria.where("code").is(stock.getCode()));
             Update update = new Update();
-            update.set("shortName", stockInfoStr.split(",")[1]);
+            update.set("shortName", stockInfoStr.split(REGEX_COMMA)[1]);
             mongoDao.update(query, update, Stock.class);
         }
     }
@@ -159,16 +197,16 @@ public class StockBiz {
     private void initIndustry(String token) {
         String industriesStr = stockHandle.getIndustries(HandleConstants.JQ_L1, token);
 
-        String[] industriesArray = industriesStr.split("\n");
+        String[] industriesArray = industriesStr.split(REGEX_LINE_BREAK);
         for (int i = 1; i < industriesArray.length; i++) {
-            String[] infoArray = industriesArray[i].split(",");
+            String[] infoArray = industriesArray[i].split(REGEX_COMMA);
 
             String code = infoArray[0];
             String name = infoArray[1];
 
             String stocksStr = stockHandle.getIndustryStocks(code, token);
             logger.info("stocksStr:{}", stocksStr);
-            String[] stocks = stocksStr.split("\n");
+            String[] stocks = stocksStr.split(REGEX_LINE_BREAK);
 
             Update update = new Update();
             update.set("jqIndustryCode", code);
@@ -187,7 +225,7 @@ public class StockBiz {
         for (Stock stock : stockList) {
             String industriesStr = stockHandle.getIndustry(stock.getCode(), token);
 
-            String[] infoArray = industriesStr.split("\n")[1].split(",");
+            String[] infoArray = industriesStr.split(REGEX_LINE_BREAK)[1].split(REGEX_COMMA);
             String code = infoArray[1];
             String name = infoArray[2];
 

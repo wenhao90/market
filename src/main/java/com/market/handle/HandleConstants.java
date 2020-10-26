@@ -26,5 +26,20 @@ public interface HandleConstants {
 
     String GET_PRICE_PERIOD = "get_price_period";
 
+    /**
+     * 融资
+     */
+    String GET_MARGINCASH_STOCKS = "GET_MARGINCASH_STOCKS ";
+
+    /**
+     * 融券
+     */
+    String GET_MARGINSEC_STOCKS = "get_marginsec_stocks";
+
+    /**
+     * 融券融券信息
+     */
+    String GET_MTSS = "get_mtss";
+
 
 }
