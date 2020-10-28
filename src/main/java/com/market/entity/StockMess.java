@@ -29,10 +29,16 @@ public class StockMess {
      */
     private long fin_buy_value;
 
+    private long fin_refund_value;
+
     /**
      * 融券余量
      */
     private long sec_value;
+
+    private long sec_sell_value;
+
+    private long sec_refund_value;
 
     /**
      * 融资融券余额

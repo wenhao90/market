@@ -3,7 +3,7 @@ package com.market.request;
 import lombok.Data;
 
 @Data
-public class StockoMessRequest {
+public class StockLockedRequest {
 
     private String method;
 
@@ -16,10 +16,12 @@ public class StockoMessRequest {
     private String end_date;
 
 
-    public StockoMessRequest(String method, String token,String code, String date) {
+    public StockLockedRequest(String method, String token, String code, String date, String endDate) {
         this.method = method;
         this.token = token;
+        this.code = code;
         this.date = date;
+        this.end_date = endDate;
     }
 
 }

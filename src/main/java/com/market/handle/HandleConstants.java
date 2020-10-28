@@ -2,6 +2,8 @@ package com.market.handle;
 
 public interface HandleConstants {
 
+    String INDEX_800 = "000906.XSHG";
+
     String JQ_L1 = "jq_l1";
 
     String INIT_PRICE_UNIT = "1d";
@@ -41,5 +43,6 @@ public interface HandleConstants {
      */
     String GET_MTSS = "get_mtss";
 
+    String GET_LOCKED_SHARES = "get_locked_shares";
 
 }

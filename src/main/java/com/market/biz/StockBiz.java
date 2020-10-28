@@ -1,13 +1,15 @@
 package com.market.biz;
 
 import com.market.entity.Stock;
+import com.market.entity.StockMess;
 import com.market.entity.StockPrice;
 import com.market.handle.HandleConstants;
 import com.market.handle.JQHandle;
 import com.market.handle.StockHandle;
 import com.market.mongo.MongoDao;
+import com.market.request.StockLockedRequest;
 import com.market.request.StockPriceRequest;
-import com.market.request.StockoMarginsecRequest;
+import com.market.request.StockMarginsecRequest;
 import com.market.utils.DateUtil;
 import com.market.utils.MathUtil;
 import org.slf4j.Logger;
@@ -21,8 +23,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Component
 public class StockBiz {
@@ -42,28 +42,77 @@ public class StockBiz {
     private JQHandle jqHandle;
 
     public void init() {
-//        String token = jqHandle.auth();
-//        logger.info("token:{}", token);
-        String token = "5b6a9ba1b0f77fba22667f2f07ce0fb3727a7553";
+        String token = jqHandle.auth();
+        logger.info("token:{}", token);
 
 
-//        if (shouldInit()) {
-//            initIndexStock(token, "000906.XSHG");
-//        }
-//        initStockInfo(token);
-//        initIndustry(token);
-//        initIndustryForEmpty(token);
-//        initStockPrice(token);
+        if (!shouldInit()) {
+            return;
+        }
 
-//        initMA(2);
-//        initPeatPrice();
-//        initMarginsec(token);
+        initStockRelevant(token);
+
+        initPriceRelevant(token);
+
+        initMtss(token);
+    }
+
+    private void initPriceRelevant(String token) {
+        initStockPrice(token);
+        initMA(2);
+        initEndsPrice();
+    }
+
+    private void initStockRelevant(String token) {
+        initIndexStock(token, HandleConstants.INDEX_800);
+        initStockInfo(token);
+        initIndustry(token);
+        initIndustryForEmpty(token);
         initMargincash(token);
+        initMarginsec(token);
+    }
+
+    /**
+     * TODO 暂不考虑
+     *
+     * @param token
+     */
+    private void initLockedShares(String token) {
+        StockLockedRequest request = new StockLockedRequest(HandleConstants.GET_LOCKED_SHARES, token, "000001.XSHE", "2020-10-28", "2020-12-31");
+        String loceedStr = stockHandle.getLockedShares(request);
+        logger.info("asdfasdf:{}", loceedStr);
 
     }
 
+    private void initMtss(String token) {
+        StockLockedRequest request = new StockLockedRequest(HandleConstants.GET_MTSS, token, "000001.XSHE", "2020-10-20", "2020-10-28");
+        String mtssStr = stockHandle.getLockedShares(request);
+        logger.info("asdfasdf:{}", mtssStr);
+
+        List<StockMess> messList = new ArrayList<>();
+
+        String[] mtssArray = mtssStr.split(REGEX_LINE_BREAK);
+        for (int i = 1; i < mtssArray.length; i++) {
+            String[] dataArray = mtssArray[i].split(REGEX_COMMA);
+
+            StockMess mess = StockMess.builder().code(dataArray[1])
+                    .date(dataArray[0])
+                    .timestamp(DateUtil.strToStamp(dataArray[0]))
+                    .fin_value(Long.parseLong(dataArray[2]))
+                    .fin_buy_value(Long.parseLong(dataArray[3]))
+                    .fin_refund_value(Long.parseLong(dataArray[4]))
+                    .sec_value(Long.parseLong(dataArray[5]))
+                    .sec_sell_value(Long.parseLong(dataArray[6]))
+                    .sec_refund_value(Long.parseLong(dataArray[7]))
+                    .fin_sec_value(Long.parseLong(dataArray[8]))
+                    .build();
+            messList.add(mess);
+        }
+        mongoDao.insertAll(messList);
+    }
+
     private void initMargincash(String token) {
-        StockoMarginsecRequest request = new StockoMarginsecRequest(HandleConstants.GET_MARGINCASH_STOCKS, token);
+        StockMarginsecRequest request = new StockMarginsecRequest(HandleConstants.GET_MARGINCASH_STOCKS, token);
         String margincashString = stockHandle.getStockMarginsec(request);
 
         String[] margincashArray = margincashString.split(REGEX_LINE_BREAK);
@@ -79,7 +128,7 @@ public class StockBiz {
     }
 
     private void initMarginsec(String token) {
-        StockoMarginsecRequest request = new StockoMarginsecRequest(HandleConstants.GET_MARGINSEC_STOCKS, token);
+        StockMarginsecRequest request = new StockMarginsecRequest(HandleConstants.GET_MARGINSEC_STOCKS, token);
         String margisecString = stockHandle.getStockMarginsec(request);
 
         String[] margisecArray = margisecString.split(REGEX_LINE_BREAK);
@@ -94,7 +143,7 @@ public class StockBiz {
 
     }
 
-    private void initPeatPrice() {
+    private void initEndsPrice() {
         List<Stock> stockList = (List<Stock>) mongoDao.findAll(Stock.class);
 
         for (Stock stock : stockList) {
@@ -240,7 +289,6 @@ public class StockBiz {
 
 
     /**
-     * 中证 1000 000852.XSHG
      * 中证 800 000906.XSHG
      *
      * @param token
@@ -269,6 +317,5 @@ public class StockBiz {
         }
         return list.subList(start, end);
     }
-
 
 }

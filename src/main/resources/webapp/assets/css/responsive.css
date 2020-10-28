@@ -100,7 +100,7 @@
     }
 
     /* dashboard three */
-    #salesanalytic {
+    #salesanalytic,#salesanalytic1 {
         height: 500px;
     }
     #seomap {
@@ -834,7 +834,7 @@
     #user-statistics {
         height: 250px;
     }
-    #salesanalytic {
+    #salesanalytic,#salesanalytic1 {
         height: 400px;
     }
     #seomap {

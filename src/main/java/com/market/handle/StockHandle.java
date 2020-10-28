@@ -1,9 +1,6 @@
 package com.market.handle;
 
-import com.market.request.IndexStocksRequest;
-import com.market.request.StockInfoRequest;
-import com.market.request.StockPriceRequest;
-import com.market.request.StockoMarginsecRequest;
+import com.market.request.*;
 import com.market.utils.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,14 +53,19 @@ public class StockHandle {
         return priceStr;
     }
 
-    public String getStockMarginsec(StockoMarginsecRequest request) {
+    public String getStockMarginsec(StockMarginsecRequest request) {
         String priceStr = (String) clientUtil.post(HandleConstants.JQ_URL, request, String.class);
         return priceStr;
     }
 
-    public String getStockMess(StockoMarginsecRequest request) {
+    public String getStockMtss(StockMarginsecRequest request) {
         String priceStr = (String) clientUtil.post(HandleConstants.JQ_URL, request, String.class);
         return priceStr;
+    }
+
+    public String getLockedShares(StockLockedRequest request) {
+        String lockedStr = (String) clientUtil.post(HandleConstants.JQ_URL, request, String.class);
+        return lockedStr;
     }
 
 }
