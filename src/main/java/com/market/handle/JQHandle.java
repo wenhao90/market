@@ -27,6 +27,7 @@ public class JQHandle {
     public String auth() {
         LoginRequest request = new LoginRequest(HandleConstants.GET_TOKEN, user.getName(), user.getPassword());
         String token = (String) clientUtil.post(HandleConstants.JQ_URL, request, String.class);
+        logger.info("token:{}",token);
         return token;
     }
 

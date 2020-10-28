@@ -7,9 +7,7 @@ import com.market.handle.HandleConstants;
 import com.market.handle.JQHandle;
 import com.market.handle.StockHandle;
 import com.market.mongo.MongoDao;
-import com.market.request.StockLockedRequest;
-import com.market.request.StockPriceRequest;
-import com.market.request.StockMarginsecRequest;
+import com.market.request.*;
 import com.market.utils.DateUtil;
 import com.market.utils.MathUtil;
 import org.slf4j.Logger;
@@ -25,15 +23,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class StockBiz {
+public class StockInitBiz {
 
     public static final String REGEX_LINE_BREAK = "\n";
     public static final String REGEX_COMMA = ",";
 
-    private static final Logger logger = LoggerFactory.getLogger(StockBiz.class);
-
-    @Autowired
-    private MongoDao mongoDao;
+    private static final Logger logger = LoggerFactory.getLogger(StockInitBiz.class);
 
     @Autowired
     private StockHandle stockHandle;
@@ -41,10 +36,11 @@ public class StockBiz {
     @Autowired
     private JQHandle jqHandle;
 
+    @Autowired
+    private MongoDao mongoDao;
+
     public void init() {
         String token = jqHandle.auth();
-        logger.info("token:{}", token);
-
 
         if (!shouldInit()) {
             return;
@@ -233,8 +229,10 @@ public class StockBiz {
     private void initStockInfo(String token) {
         List<Stock> stockList = (List<Stock>) mongoDao.findAll(Stock.class);
 
+        StockInfoRequest request = new StockInfoRequest(HandleConstants.GET_SECURITY_INFO, token, "");
         for (Stock stock : stockList) {
-            String stockInfoStr = stockHandle.getStockInfo(stock.getCode(), token);
+            request.setCode(stock.getCode());
+            String stockInfoStr = stockHandle.getStockInfo(request);
 
             Query query = new Query(Criteria.where("code").is(stock.getCode()));
             Update update = new Update();
@@ -244,16 +242,19 @@ public class StockBiz {
     }
 
     private void initIndustry(String token) {
-        String industriesStr = stockHandle.getIndustries(HandleConstants.JQ_L1, token);
+        StockInfoRequest request = new StockInfoRequest(HandleConstants.GET_INDUSTRIES, token, HandleConstants.JQ_L1);
+        String industriesStr = stockHandle.getIndustries(request);
 
         String[] industriesArray = industriesStr.split(REGEX_LINE_BREAK);
+        StockInfoRequest industryStocksRequest = new StockInfoRequest(HandleConstants.GET_INDUSTRY_STOCKS, token, "");
         for (int i = 1; i < industriesArray.length; i++) {
             String[] infoArray = industriesArray[i].split(REGEX_COMMA);
 
             String code = infoArray[0];
             String name = infoArray[1];
 
-            String stocksStr = stockHandle.getIndustryStocks(code, token);
+            industryStocksRequest.setCode(code);
+            String stocksStr = stockHandle.getIndustryStocks(industryStocksRequest);
             logger.info("stocksStr:{}", stocksStr);
             String[] stocks = stocksStr.split(REGEX_LINE_BREAK);
 
@@ -271,8 +272,10 @@ public class StockBiz {
         Query query = new Query(Criteria.where("jqIndustryCode").is(null));
         List<Stock> stockList = (List<Stock>) mongoDao.findMany(query, Stock.class);
 
+        StockInfoRequest request = new StockInfoRequest(HandleConstants.GET_INDUSTRY, token, "");
         for (Stock stock : stockList) {
-            String industriesStr = stockHandle.getIndustry(stock.getCode(), token);
+            request.setCode(stock.getCode());
+            String industriesStr = stockHandle.getIndustry(request);
 
             String[] infoArray = industriesStr.split(REGEX_LINE_BREAK)[1].split(REGEX_COMMA);
             String code = infoArray[1];
@@ -295,7 +298,8 @@ public class StockBiz {
      */
     private void initIndexStock(String token, String... indexs) {
         for (String index : indexs) {
-            String[] indexStocks = stockHandle.getIndexStocks(index, token);
+            IndexStocksRequest request = new IndexStocksRequest(HandleConstants.GET_INDEX_STOCKS, token, index);
+            String[] indexStocks = stockHandle.getIndexStocks(request);
 
             List<Stock> stockList = new ArrayList<>();
             for (int i = 0; i < indexStocks.length; i++) {

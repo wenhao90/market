@@ -1,6 +1,6 @@
 package com.market.controller;
 
-import com.market.biz.StockBiz;
+import com.market.biz.StockInitBiz;
 import com.market.request.TestRequest;
 import com.market.response.TestResponse;
 import com.market.service.TestService;
@@ -16,7 +16,7 @@ import java.util.List;
 public class TestController {
 
     @Autowired
-    private StockBiz handle;
+    private StockInitBiz handle;
 
     @Autowired
     private TestService service;
