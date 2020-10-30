@@ -20,17 +20,19 @@ public interface HandleConstants {
     /**
      * 初始开始时间（需修改）
      */
-    String INIT_PRICE_START_TIME = "2020-09-30";
+    String INIT_PRICE_START_TIME = "2017-01-01";
 
     /**
      * 初始价格结束时间（需修改）
      */
-    String INIT_PRICE_END_TIME = "2020-10-09";
+    String INIT_PRICE_END_TIME = "2020-10-28";
 
 
     String JQ_URL = "https://dataapi.joinquant.com/apis";
 
     String GET_TOKEN = "get_token";
+
+    String GET_QUERY_COUNT = "get_query_count";
 
     String GET_INDEX_STOCKS = "get_index_stocks";
 

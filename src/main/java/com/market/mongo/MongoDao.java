@@ -20,8 +20,7 @@ public class MongoDao {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public long count(Class<?> object) {
-        Query query = new Query();
+    public long count(Query query, Class<?> object) {
         long count = mongoTemplate.count(query, object);
         return count;
     }

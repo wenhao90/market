@@ -1,5 +1,6 @@
 package com.market.biz;
 
+import com.market.entity.Industry;
 import com.market.entity.Stock;
 import com.market.entity.StockMess;
 import com.market.entity.StockPrice;
@@ -42,20 +43,25 @@ public class StockInitBiz {
     public void init() {
         String token = jqHandle.auth();
 
-        if (!shouldInit()) {
-            return;
-        }
+//        if (!shouldInit()) {
+//            logger.info("StockInitBiz: there is not init data.");
+//            return;
+//        }
 
-        initStockRelevant(token);
+//        initStockRelevant(token);
 
         initPriceRelevant(token);
 
-        initMtss(token);
+//        initMtss(token);
+
+
+        String count = stockHandle.getCount(new CountRequest(HandleConstants.GET_QUERY_COUNT, token));
+        logger.info("剩余查询条数：{}", count);
     }
 
     private void initPriceRelevant(String token) {
-        initStockPrice(token);
-        initMA(2);
+//        initStockPrice(token);
+        initMA();
         initEndsPrice();
     }
 
@@ -156,33 +162,40 @@ public class StockInitBiz {
             update.set("highest", priceList_high.get(0).getClose());
             update.set("lowest", priceList_low.get(0).getClose());
             mongoDao.update(query, update, Stock.class);
-            return;
         }
     }
 
-    private void initMA(int number) {
-        List<StockPrice> stockList = (List<StockPrice>) mongoDao.findAll(StockPrice.class);
+    private void initMA() {
+        List<Stock> stockList = (List<Stock>) mongoDao.findAll(Stock.class);
+        for (Stock stock : stockList) {
+            Query query = new Query(Criteria.where("code").is(stock.getCode()))
+                    .with(Sort.by(Sort.Order.desc("timestamp")));
+            List<StockPrice> priceList = (List<StockPrice>) mongoDao.findMany(query, StockPrice.class);
 
-        for (int i = 0; i < number; i++) {
-            Update update = new Update();
-            StockPrice price = stockList.get(i);
+            for (int i = 0; i < priceList.size() - 120; i++) {
+                StockPrice price = priceList.get(i);
+                if (price.getEma_20() > 0.0) {
+                    continue;
+                }
 
-            List<StockPrice> maList_20 = (List<StockPrice>) subList(stockList, i, 20 + i);
-            update.set("ma_20", MathUtil.getMA(maList_20));
-            update.set("ema_20", MathUtil.getEMA(maList_20));
+                Update update = new Update();
 
-            List<StockPrice> maList_60 = (List<StockPrice>) subList(stockList, i, 60 + i);
-            update.set("ma_60", MathUtil.getMA(maList_60));
-            update.set("ema_60", MathUtil.getEMA(maList_60));
+                List<StockPrice> maList_20 = (List<StockPrice>) subList(priceList, i, 20 + i);
+                update.set("ma_20", MathUtil.getMA(maList_20));
+                update.set("ema_20", MathUtil.getEMA(maList_20));
 
-            List<StockPrice> maList_120 = (List<StockPrice>) subList(stockList, i, 120 + i);
-            update.set("ma_120", MathUtil.getMA(maList_120));
-            update.set("ema_120", MathUtil.getEMA(maList_120));
+                List<StockPrice> maList_60 = (List<StockPrice>) subList(priceList, i, 60 + i);
+                update.set("ma_60", MathUtil.getMA(maList_60));
+                update.set("ema_60", MathUtil.getEMA(maList_60));
 
-            Query query_1 = new Query(Criteria.where("code").is(price.getCode()).and("date").is(price.getDate()));
-            mongoDao.update(query_1, update, StockPrice.class);
+                List<StockPrice> maList_120 = (List<StockPrice>) subList(priceList, i, 120 + i);
+                update.set("ma_120", MathUtil.getMA(maList_120));
+                update.set("ema_120", MathUtil.getEMA(maList_120));
+
+                Query query_1 = new Query(Criteria.where("code").is(price.getCode()).and("date").is(price.getDate()));
+                mongoDao.update(query_1, update, StockPrice.class);
+            }
         }
-
     }
 
     private void initStockPrice(String token) {
@@ -197,6 +210,13 @@ public class StockInitBiz {
 
         for (Stock stock : stockList) {
             String code = stock.getCode();
+
+            Query query = new Query(Criteria.where("code").is(code));
+            long count = mongoDao.count(query, StockPrice.class);
+            if (count > 0) {
+                continue;
+            }
+
             request.setCode(code);
             String priceStr = stockHandle.getStockPrice(request);
 
@@ -221,7 +241,6 @@ public class StockInitBiz {
             }
 
             mongoDao.insertAll(priceList);
-            return;
         }
     }
 
@@ -246,24 +265,33 @@ public class StockInitBiz {
         String industriesStr = stockHandle.getIndustries(request);
 
         String[] industriesArray = industriesStr.split(REGEX_LINE_BREAK);
-        StockInfoRequest industryStocksRequest = new StockInfoRequest(HandleConstants.GET_INDUSTRY_STOCKS, token, "");
+        List<Industry> industryList = new ArrayList<>();
         for (int i = 1; i < industriesArray.length; i++) {
             String[] infoArray = industriesArray[i].split(REGEX_COMMA);
 
             String code = infoArray[0];
             String name = infoArray[1];
 
-            industryStocksRequest.setCode(code);
+            Industry industry = Industry.builder().code(code).name(name).build();
+            industryList.add(industry);
+        }
+
+        mongoDao.insertAll(industryList);
+
+
+        StockInfoRequest industryStocksRequest = new StockInfoRequest(HandleConstants.GET_INDUSTRY_STOCKS, token, "");
+        for (Industry industry : industryList) {
+            industryStocksRequest.setCode(industry.getCode());
             String stocksStr = stockHandle.getIndustryStocks(industryStocksRequest);
             logger.info("stocksStr:{}", stocksStr);
             String[] stocks = stocksStr.split(REGEX_LINE_BREAK);
 
             Update update = new Update();
-            update.set("jqIndustryCode", code);
-            update.set("jqIndustry", name);
+            update.set("jqIndustryCode", industry.getCode());
+            update.set("jqIndustry", industry.getName());
             for (int j = 0; j < stocks.length; j++) {
                 Query query = new Query(Criteria.where("code").is(stocks[j]));
-//                mongoDao.update(query, update, Stock.class);
+                mongoDao.update(query, update, Stock.class);
             }
         }
     }
@@ -311,7 +339,8 @@ public class StockInitBiz {
     }
 
     private boolean shouldInit() {
-        long count = mongoDao.count(Stock.class);
+        Query query = new Query();
+        long count = mongoDao.count(query, Stock.class);
         return count <= 0;
     }
 

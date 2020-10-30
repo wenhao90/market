@@ -9,7 +9,8 @@ import java.util.List;
 public class MathUtil {
 
     public static double getMA(List<StockPrice> list) {
-        return list.stream().mapToDouble(StockPrice::getClose).average().getAsDouble();
+        double ma = list.stream().mapToDouble(StockPrice::getClose).average().getAsDouble();
+        return new BigDecimal(ma).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
 
     public static Double getEMA(List<StockPrice> list) {
@@ -25,7 +26,7 @@ public class MathUtil {
         for (int i = 1; i < size; i++) {
             ema = list.get(i).getClose() * index + ema * (1 - index);
         }
-        return new BigDecimal(ema).setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue();
+        return new BigDecimal(ema).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
 
 }

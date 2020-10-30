@@ -13,6 +13,11 @@ public class StockHandle {
     @Autowired
     private HttpClientUtil clientUtil;
 
+    public String getCount (CountRequest request) {
+        String count = (String) clientUtil.post(HandleConstants.JQ_URL, request, String.class);
+        return count;
+    }
+
     public String[] getIndexStocks(IndexStocksRequest request) {
         String indexStockStr = (String) clientUtil.post(HandleConstants.JQ_URL, request, String.class);
         return indexStockStr.split("\n");
