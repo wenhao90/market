@@ -194,6 +194,8 @@ public class StockInitBiz {
 
                 Query query_1 = new Query(Criteria.where("code").is(price.getCode()).and("date").is(price.getDate()));
                 mongoDao.update(query_1, update, StockPrice.class);
+
+                logger.info("handle {} {} data", price.getCode(), price.getDate());
             }
         }
     }
