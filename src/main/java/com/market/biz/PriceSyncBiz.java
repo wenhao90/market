@@ -44,19 +44,19 @@ public class PriceSyncBiz {
     public void sync() {
         String token = jqHandle.auth();
 
-//        Map<String, String> dateSection = getDateSection();
-//        if (Objects.isNull(dateSection)) {
-//            return;
-//        }
+        Map<String, String> dateSection = getDateSection();
+        if (Objects.isNull(dateSection)) {
+            return;
+        }
 
-//        Map<String, Integer> syncResult = syncPrice(token, dateSection.get("start"), dateSection.get("end"));
-//
-//        initBiz.initEndsPrice();
-//
-//        syncMA(syncResult);
-//        syncIndustryPrice(token, dateSection.get("start"), dateSection.get("end"));
+        Map<String, Integer> syncResult = syncPrice(token, dateSection.get("start"), dateSection.get("end"));
 
-        syncWidth("2020-10-29", "2020-11-02");
+        initBiz.initEndsPrice();
+
+        syncMA(syncResult);
+        syncIndustryPrice(token, dateSection.get("start"), dateSection.get("end"));
+
+        syncWidth(dateSection.get("start"), dateSection.get("end"));
     }
 
     private void syncWidth(String start, String end) {
