@@ -53,7 +53,7 @@ public class StockHandle {
         return priceStr;
     }
 
-    public String getStockMtss(StockMarginsecRequest request) {
+    public String getStockMtss(StockMessRequest request) {
         String priceStr = (String) clientUtil.post(HandleConstants.JQ_URL, request, String.class);
         return priceStr;
     }

@@ -16,10 +16,12 @@ public class StockMessRequest {
     private String end_date;
 
 
-    public StockMessRequest(String method, String token, String code, String date) {
+    public StockMessRequest(String method, String token, String code, String date,String endDate) {
         this.method = method;
         this.token = token;
+        this.code = code;
         this.date = date;
+        this.end_date = endDate;
     }
 
 }

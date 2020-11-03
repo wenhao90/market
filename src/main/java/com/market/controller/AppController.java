@@ -12,19 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/test")
-public class TestController {
-
-    @Autowired
-    private StockInitBiz handle;
+@RequestMapping("/data")
+public class AppController {
 
     @Autowired
     private TestService service;
-
-    @RequestMapping(value = "/test", method = RequestMethod.GET)
-    public void test() {
-        handle.init();
-    }
 
 
     @RequestMapping(value = "/mixed", method = RequestMethod.GET)

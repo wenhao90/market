@@ -5,6 +5,9 @@ import lombok.Data;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @Builder
 @Document("stock")
@@ -32,5 +35,7 @@ public class Stock {
      * 是否可以融资
      */
     private int margincash;
+
+    private List<Tag> tags = new ArrayList<>();
 
 }

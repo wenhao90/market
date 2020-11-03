@@ -45,5 +45,10 @@ public class StockMess {
      */
     private long fin_sec_value;
 
+    /**
+     * 融券余额：fin_sec_value - fin_value
+     */
+    private long sec_balance;
+
 
 }

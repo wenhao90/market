@@ -1,10 +1,14 @@
 package com.market.mongo;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
@@ -23,6 +27,10 @@ public class MongoDao {
     public long count(Query query, Class<?> object) {
         long count = mongoTemplate.count(query, object);
         return count;
+    }
+
+    public <T> T insert(T object) {
+        return mongoTemplate.insert(object);
     }
 
     public Collection<?> insertAll(List<?> objects) {
@@ -47,5 +55,9 @@ public class MongoDao {
     public UpdateResult update(Query query, Update update, Class<?> object) {
         UpdateResult resultList = mongoTemplate.updateFirst(query, update, object);
         return resultList;
+    }
+
+    public AggregationResults<?> aggregate(Aggregation aggregation, Class<?> input, Class<?> output) {
+        return mongoTemplate.aggregate(aggregation, input, output);
     }
 }

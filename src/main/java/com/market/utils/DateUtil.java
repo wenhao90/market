@@ -6,6 +6,8 @@ import java.util.Date;
 
 public class DateUtil {
 
+    public static final String DATE_FORMAT = "yyyy-MM-dd";
+
 
     public static long strToStamp(String dateStr) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
