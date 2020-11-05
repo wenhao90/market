@@ -1,6 +1,6 @@
 package com.market.biz;
 
-import com.market.entity.*;
+import com.market.entity.StockPrice;
 import com.market.handle.JQHandle;
 import com.market.mongo.MongoDao;
 import com.market.utils.DateUtil;
@@ -12,22 +12,17 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Component
 public class PriceSyncBiz {
 
-    public static final String REGEX_LINE_BREAK = "\n";
-    public static final String REGEX_COMMA = ",";
     public static final int ONE_DAY_MILS = 86400000;
 
     private static final Logger logger = LoggerFactory.getLogger(PriceSyncBiz.class);

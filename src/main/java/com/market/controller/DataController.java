@@ -2,6 +2,7 @@ package com.market.controller;
 
 import com.market.biz.PriceSyncBiz;
 import com.market.biz.StockInitBiz;
+import com.market.biz.StrategyBiz;
 import com.market.request.TestRequest;
 import com.market.response.TestResponse;
 import com.market.service.TestService;
@@ -22,14 +23,23 @@ public class DataController {
     @Autowired
     private PriceSyncBiz syncBiz;
 
-    @RequestMapping(value = "/init", method = RequestMethod.GET)
+    @Autowired
+    private StrategyBiz strategyBiz;
+
+    //    @RequestMapping(value = "/init", method = RequestMethod.GET)
     public void init() {
         initBiz.init();
     }
 
 
-    @RequestMapping(value = "/sync", method = RequestMethod.GET)
+    //    @RequestMapping(value = "/sync", method = RequestMethod.GET)
     public void sync() {
         syncBiz.sync();
     }
+
+    @RequestMapping(value = "/strategy", method = RequestMethod.GET)
+    public void strategy() {
+        strategyBiz.run();
+    }
+
 }
